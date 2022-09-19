@@ -1,6 +1,4 @@
-# COMP2913 Group Project - Cinema System - CineStack
-Files for the COMP2913 module.
-Hosted live @ [our cool domain](https://segfault.zone)
+# Cinema System - CineStack 
 
 ## The Group
 **Name** - SEGFAULT (Software Engineering Group For Amazing Undergrads Like Thesedudes)
