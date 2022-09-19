@@ -1,0 +1,26 @@
+.posHeader {
+    padding: 2em 1em;
+    display: flex;
+}
+
+.posHeaderIcon {
+    margin-right: 1em;
+}
+
+.posHeaderIcon:hover {
+    cursor: pointer;
+}
+
+.posHeaderIcon > img {
+    width: 80px;
+    height: 80px;
+}
+
+.posHeaderTitle {
+    display: flex;
+    align-items: center;
+}
+
+.posHeaderTitle > h1 {
+    margin-bottom: 0 !important;
+}

@@ -1,0 +1,13 @@
+.container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 86vh;
+}
+
+.backButtonWrapper {
+    position: absolute;
+    bottom: 7.5vh;
+    left: 10vh;
+    width: 200px;
+}

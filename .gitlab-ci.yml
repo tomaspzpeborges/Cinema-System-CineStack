@@ -1,0 +1,141 @@
+image: node:lts
+
+services:
+    - mongo:latest
+
+stages:
+    - test:backend
+    - test:frontend
+    - build-react-prod
+    - deploy
+cache:
+    paths:
+        - backend/node_modules/
+        - frontend/customer-app/node_modules/
+        - frontend/mgmt-employee-iface/node_modules/
+
+before_script:
+    - apt-get update -qq
+    - apt-get install -qq git
+    # Setup SSH deploy keys
+    - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_KEY")
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # branch specific dotenv
+    - source .${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}.env
+
+test-backend:
+    stage: test:backend
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
+          allow_failure: true
+    script:
+        - cd backend
+        - npm install
+        - NODE_ENV=testing npm test
+
+test-customer-app:
+    stage: test:frontend
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
+          allow_failure: true
+    script:
+        - cd frontend/customer-app
+        - npm install
+        - NODE_ENV=testing npm test -- --forceExit
+
+test-mgmt-app:
+    stage: test:frontend
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop" '
+          allow_failure: true
+    script:
+        - cd frontend/mgmt-employee-iface
+        - npm install
+        - NODE_ENV=testing npm test -- --forceExit
+
+build-customer-app:
+    stage: build-react-prod
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
+          when: always
+    script:
+        - cd frontend/customer-app
+        - npm install
+        - npm run build
+    artifacts:
+        paths:
+            - frontend/customer-app/build/
+
+build-mgmt-app:
+    stage: build-react-prod
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop"'
+          when: always
+    script:
+        - cd frontend/mgmt-employee-iface
+        - npm install
+        - npm run build
+    artifacts:
+        paths:
+            - frontend/mgmt-employee-iface/build
+
+
+deploy-backend-nightly:
+    stage: deploy
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "develop"'
+          when: manual
+          allow_failure: true
+    script:
+        - ssh root@segfault.zone "cd /root/segfault-testing/backend/ && git fetch && git reset --hard origin/develop && npm i && pm2 reload all && exit"
+
+deploy-customer-app-nightly:
+    stage: deploy
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "develop"'
+          when: manual
+          allow_failure: true
+    script:
+        - ssh root@segfault.zone "rm -rf /var/www/customer-frontend-nightly && exit"
+        - scp -r frontend/customer-app/build/ root@segfault.zone:/var/www/customer-frontend-nightly
+
+deploy-mgmt-app-nightly:
+    stage: deploy
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "develop"'
+          when: manual
+          allow_failure: true
+    script:
+        - ssh root@segfault.zone "rm -rf /var/www/mgmt-frontend-nightly && exit"
+        - scp -r frontend/mgmt-employee-iface/build/ root@segfault.zone:/var/www/mgmt-frontend-nightly
+
+deploy-backend-prod:
+    stage: deploy
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "master"'
+          when: manual
+          allow_failure: true
+    script:
+        - ssh root@segfault.zone "cd /root/segfault-prod/backend/ && git fetch && git reset --hard origin/develop && npm i && pm2 reload all && exit"
+
+deploy-customer-app-prod:
+    stage: deploy
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "master"'
+          when: manual
+          allow_failure: true
+    script:
+        - ssh root@segfault.zone "rm -rf /var/www/customer-frontend-prod && exit"
+        - scp -r frontend/customer-app/build/ root@segfault.zone:/var/www/customer-frontend-prod
+
+deploy-mgmt-app-prod:
+    stage: deploy
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "master"'
+          when: manual
+    script:
+        - ssh root@segfault.zone "rm -rf /var/www/mgmt-frontend-prod && exit"
+        - scp -r frontend/mgmt-employee-iface/build/ root@segfault.zone:/var/www/mgmt-frontend-prod

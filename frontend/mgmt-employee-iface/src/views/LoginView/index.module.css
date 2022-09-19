@@ -1,0 +1,29 @@
+.loginContainer {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e5e5e5;
+}
+.centerText {
+    text-align: center;
+}
+.loginCard{
+    width: 80%;
+    max-width: 600px;
+}
+.forgotLink {
+    float: right;
+}
+.loginButton {
+    width: 100%;
+}
+
+@keyframes login-feedback-enter {
+    from {
+        transform: translateY(20px);
+    }
+    to {
+        transform: translateY(0px);
+    }
+}

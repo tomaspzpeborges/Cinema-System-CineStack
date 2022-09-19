@@ -1,0 +1,24 @@
+.container {
+    display: flex;
+    height: 86vh;
+    justify-content: space-evenly;
+}
+
+.half {
+    flex: 1;
+    margin: 1em;
+}
+
+.actionButton {
+    width: 100%;
+    height: 60px !important;
+    font-size: 18px !important;
+    margin: 0.5em 0;
+}
+
+.errorBackButtonWrapper {
+    position: absolute;
+    bottom: 7.5vh;
+    left: 10vh;
+    width: 200px;
+}

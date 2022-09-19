@@ -1,0 +1,39 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.searchBox {
+    background-color: white !important;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) !important;
+    border-radius: 4px !important;
+    font-size: 24px !important;
+}
+
+.searchBoxWrapper {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 10vh;
+}
+
+.backButtonWrapper {
+    position: absolute;
+    bottom: 7.5vh;
+    left: 10vh;
+    width: 200px;
+}
+
+.sliderWrapper {
+    height: 40vh;
+    display: block;
+}
+
+.movieCard {
+    cursor: pointer;
+}
+
+.movieCard:hover {
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25) !important;
+}
